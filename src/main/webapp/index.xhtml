@@ -10,21 +10,17 @@
     <h:body>
         <p:menubar>
             <f:facet name="options">
-                <h:outputText style="text-align:center;">ForVagos Armando</h:outputText>
-
-            </f:facet>
-            <f:facet name="options">
-                <p:commandButton value="Login"/>
-                <p:commandButton value="Registro"/>
+                <p:commandButton action="search/index" value="Login"/>
+                <p:commandButton action="search/index" value="Registro"/>
             </f:facet>
         </p:menubar>
-        <header>forvago_armando <button onclick="location.replace('newCustomer.xhtml')">Registro</button><button onclick="location.replace('login.xhtml')">Identificarse</button></header>
-        <section>
-            <div>Encuentra tu hotel sin moverte de tu sofa</div>
-            <input type="text" maxlength="70"></input><h:button value="Buscar" outcome="search/index"></h:button>
+        <p:panelGrid>
+            <h:outputText value="ForVago Armando"></h:outputText><br/>
+            <h:outputText value="Encuentra tu hotel sin moverte de tu sofa"></h:outputText><br/>
+            <h:inputText maxlength="70"></h:inputText><h:button value="Buscar" outcome="search/index"></h:button><br/>
             <!-- <img onclick="location.replace('search/index.xhtml')" src="resources/images/dubai.jpg"></img> -->
-            <h:link outcome="search/index" ><h:graphicImage value="resources/images/dubai.jpg" /></h:link>
-        </section>
+            <h:link outcome="search/index" ><h:graphicImage height="450"  value="resources/images/dubai.jpg" /></h:link>
+            </p:panelGrid>
     </h:body>
 </html>
 
