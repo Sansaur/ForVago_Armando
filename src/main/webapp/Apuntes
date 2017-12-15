@@ -1,0 +1,182 @@
+Nombre del pool: ForVagosPool
+Usuario pool: 2daw
+Contraseña pool: 2daw
+Puerto MySQL: 3306
+JDBCResource: jdbc/forVagos
+Realm: forvagos-realm
+
+--------------------------
+
+1) Services
+2) Glassfish
+3) Click derecho > Run
+4) Click derecho > View domain admin console
+5) Configurations > Server Config > Security > Realms
+6) A la derecha habrá una tabla de Realms, le damos a [New..] (Un botón de color azul)
+7) Primero que todo, en el select seleccionar el que ponga JDBCRealm
+8) Escribimos "sakila-realm" en el Nombre (Name)
+9) 
+
+JAAS Context: 					jdbcRealm
+JNDI: 							jdbc/sakila
+User table: 					sakila.users
+User table column: 				user_name
+Password column: 				password
+Group table: 					sakila.membership
+Group table user column: 		user_name
+Group name column: 				group_name
+Password Encryption algorythm: 	none
+Database User: 					2daw
+Database Password:				2daw
+
+10) Guardamos y recargamos la página si queremos verlo (Se debería tardar en funcionar, aparentemente)
+11) Copiamos el proyecto "SakilaJsf_<Nombre>" a "SakilaJsf_<Nombre>_Sec"
+12) Recordar refactorizar el proyecto con NetBeans refactor y cambiar el contexto del proyecto en el Glassfish
+13) Configurar el <login-config> (Se coloca antes del <welcome-file-list>)
+
+	<login-config>
+        <auth-method>
+            FORM
+        </auth-method>
+        <realm-name>sakila-realm</realm-name>
+        <form-login-config>
+            <form-login-page>/login.xhtml</form-login-page>
+            <form-error-page>/errorLogin.xhtml</form-error-page>
+        </form-login-config>
+    </login-config>
+	
+14) Security roles (ESTO VA DESPUÉS DEL WELCOME-FILE-LIST)
+
+
+    <security-role>
+        <description/>
+        <role-name>ADMIN</role-name>
+    </security-role>
+    <security-role>
+        <description/>
+        <role-name>MANAGER</role-name>
+    </security-role>
+    <security-role>
+        <description/>
+        <role-name>PUBLIC</role-name>
+    </security-role>
+    <security-constraint>
+        <display-name>PrivateAreaConstraint</display-name>
+        <web-resource-collection>
+            <web-resource-name>privatecoll</web-resource-name>
+            <description>Área privada</description>
+            <url-pattern>/faces/staff/*</url-pattern>
+            <http-method>GET</http-method>
+            <http-method>POST</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <description/>
+            <role-name>MANAGER</role-name>
+            <role-name>ADMIN</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <description/>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+	
+15) Vamos a glassfish-web.xml y en la pestaña de [XML] introducimos esto DESPUÉS de <glassfish-web-app error-url="">	
+
+	
+    <security-role-mapping>
+        <role-name>ADMIN</role-name>
+        <group-name>sysops</group-name>
+    </security-role-mapping>
+    <security-role-mapping>
+        <role-name>MANAGER</role-name>
+        <group-name>staff</group-name>
+    </security-role-mapping>
+    <security-role-mapping>
+        <role-name>PUBLIC</role-name>
+        <group-name>customers</group-name>
+    </security-role-mapping>
+	
+16) Hacer los xhtml
+
+17) Esta mierda (SQL) sobre la tabla sakila
+
+SET foreign_key_checks = 0;
+
+drop table IF exists users_groups;
+drop table IF exists users;
+drop table IF exists groups;
+
+create table users (
+	user_id smallint primary key
+    , user_name varchar(50) not null
+    , password varchar(256) not null
+);
+alter table users add constraint AK_users_username unique(user_name);  
+
+create table groups
+(
+   group_id int primary key auto_increment
+   , group_name varchar(50) not null
+   , description varchar(300)
+);
+alter table groups add constraint AK_groups_groupname unique(group_name);
+       
+create table users_groups
+(
+  group_id int not null,
+  user_name varchar(50) not null
+);
+alter table users_groups add primary key (group_id, user_name);
+
+alter table users_groups add constraint FK_usersgroups_users foreign key (user_name) references users(user_name);
+
+alter table users_groups add constraint FK_usersgroups_groups foreign key (group_id) references groups(group_id);
+
+insert into users (user_id, user_name, password)  
+select customer_id, substring_index(email, '@', 1), sha2('temporal', 256) from customer;
+
+
+insert into groups (group_name, description) values ('sysops', 'Grupo de administradores');
+insert into groups (group_name, description) values ('staff', 'Personal de la tienda');
+insert into groups (group_name, description) values ('customers', 'Grupo de clientes');
+
+insert into users_groups (group_id, user_name) values (1, 'MARY.SMITH');
+insert into users_groups (group_id, user_name) values (1, 'LUIS.YANEZ');
+insert into users_groups (group_id, user_name) values (2, 'LUIS.YANEZ');
+insert into users_groups (group_id, user_name) values (2, 'MIKE.WAY');
+insert into users_groups (group_id, user_name) values (3, 'TONY.CARRANZA');
+insert into users_groups (group_id, user_name) values (3, 'SARA.PERRY');
+
+
+create view membership as
+select ug.user_name, ug.group_id, g.group_name from
+groups g inner join users_groups ug on g.group_id=ug.group_id
+inner join users u on ug.user_name=u.user_name
+
+18) MYSQL CONNECTION POOL EN GLASSFISH ADMIN CONSOLE (no funciona)
+
+19) Crear la Connection Pool desde CMD EN WINDOWS
+
+cd "C:\Program Files (x86)\glassfish-4.1.1\bin"
+asadmin create-jdbc-connection-pool --datasourceclassname=com.mysql.jdbc.jdbc2.optional.MysqlDataSource --restype=javax.sql.DataSource --property=user=2daw:password=2daw:url="jdbc\:mysql\://localhost\:3306/sakila" SakilaPool
+
+20) TUVE QUE BORRAR DUPLICADOS EN EL MYSQL, PARA ESO USAR ESTO.
+
+DELETE dupes
+FROM customer dupes, customer fullTable
+WHERE dupes.first_name = fullTable.first_name 
+AND dupes.customer_id > fullTable.customer_id
+
+COPIAR EN LA LIBRERÍA DEL GLASSFISH EL MYSQLCONNECTOR 
+C:\Users\alumno\GlassFish_Server\glassfish\domains\domain1\lib
+
+
+REVISAR BIEN LOS COMANDOS, QUE SE LOS TRAGA.
+
+Comandos bien importantes:
+CREAR CONNECTION POOL
+asadmin create-jdbc-connection-pool --datasourceclassname=com.mysql.jdbc.jdbc2.optional.MysqlDataSource --restype=javax.sql.DataSource --property=user=2daw:password=2daw:url="jdbc\:mysql\://localhost\:3306/sakila" SakilaPool
+CREAR RECURSO
+asadmin create-jdbc-resource --connectionpoolid SakilaPool jdbc/sakila
+BORRAR CONNECTION POOL (TAMBIEN BORRA RECURSOS POR ALGUNA RAZON)
+asadmin delete-jdbc-connection-pool --cascade SakilaPool
