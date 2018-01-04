@@ -13,6 +13,8 @@ create table users (
 );
 alter table users add constraint AK_users_username unique(user_name);  
 
+insert into users (user_id, user_name, password) VALUES (1,'Armando',sha2('temporal', 256));
+
 create table groups
 (
    group_id int primary key auto_increment
@@ -36,6 +38,9 @@ insert into groups (group_name, description) values ('Administradores', 'Grupo d
 insert into groups (group_name, description) values ('Gestores', 'Personal de la tienda');
 insert into groups (group_name, description) values ('Clientes', 'Grupo de clientes');
 
+insert into users_groups (group_id, user_name) values (1, 'Armando');
+
+GRANT ALL PRIVILEGES ON forvagos.* TO '2daw'@'localhost' IDENTIFIED BY '2daw';
 
 create view membership as
 select ug.user_name, ug.group_id, g.group_name from

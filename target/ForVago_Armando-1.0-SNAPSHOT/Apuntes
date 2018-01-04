@@ -18,14 +18,14 @@ Realm: forvagos-realm
 9) 
 
 JAAS Context: 					jdbcRealm
-JNDI: 							jdbc/sakila
+JNDI: 						jdbc/sakila
 User table: 					sakila.users
 User table column: 				user_name
 Password column: 				password
 Group table: 					sakila.membership
-Group table user column: 		user_name
+Group table user column:                        user_name
 Group name column: 				group_name
-Password Encryption algorythm: 	none
+Password Encryption algorythm:                  none
 Database User: 					2daw
 Database Password:				2daw
 
@@ -175,8 +175,16 @@ REVISAR BIEN LOS COMANDOS, QUE SE LOS TRAGA.
 
 Comandos bien importantes:
 CREAR CONNECTION POOL
-asadmin create-jdbc-connection-pool --datasourceclassname=com.mysql.jdbc.jdbc2.optional.MysqlDataSource --restype=javax.sql.DataSource --property=user=2daw:password=2daw:url="jdbc\:mysql\://localhost\:3306/sakila" SakilaPool
+    asadmin create-jdbc-connection-pool --datasourceclassname=com.mysql.jdbc.jdbc2.optional.MysqlDataSource --restype=javax.sql.DataSource --property=user=2daw:password=2daw:url="jdbc\:mysql\://localhost\:3306/sakila" SakilaPool
+
 CREAR RECURSO
-asadmin create-jdbc-resource --connectionpoolid SakilaPool jdbc/sakila
+    asadmin create-jdbc-resource --connectionpoolid SakilaPool jdbc/sakila
+
 BORRAR CONNECTION POOL (TAMBIEN BORRA RECURSOS POR ALGUNA RAZON)
-asadmin delete-jdbc-connection-pool --cascade SakilaPool
+    asadmin delete-jdbc-connection-pool --cascade SakilaPool
+
+
+PARA FORVAGOS
+
+    asadmin create-jdbc-connection-pool --datasourceclassname=com.mysql.jdbc.jdbc2.optional.MysqlDataSource --restype=javax.sql.DataSource --property=user=2daw:password=2daw:url="jdbc\:mysql\://localhost\:3306/forvagos" ForVagosPool
+    asadmin create-jdbc-resource --connectionpoolid ForVagosPool jdbc/forVagos
